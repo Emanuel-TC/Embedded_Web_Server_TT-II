@@ -127,6 +127,84 @@ const VoltageChart = ({ data }) => {
         data.length > 0
     );
 };
+//
+const GraficaCorrienteFactorPotencia = ({ data }) => {
+    useEffect(() => {
+        if (data.length > 0) {
+            const ctx = document.getElementById("graficaCorrienteFactorPotencia").getContext("2d");
+            new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: data.map((item) => `${item.Fecha} ${item.Hora}`), // Se concatena Fecha y Hora
+                    datasets: [
+                        {
+                            label: "Corriente RMS",
+                            data: data.map((item) => item["Corriente RMS"]),
+                            borderColor: "rgba(75, 192, 192, 1)",
+                            fill: false,
+                        },
+                        {
+                            label: "Factor de Potencia",
+                            data: data.map((item) => item["Factor de Potencia"]),
+                            borderColor: "rgba(192, 75, 75, 1)",
+                            fill: false,
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            });
+        }
+    }, [data]);
+
+    return (
+        data.length > 0
+    );
+};
+
+const GraficaPotenciaActivaAparente = ({ data }) => {
+    useEffect(() => {
+        if (data.length > 0) {
+            const ctx = document.getElementById("graficaPotenciaActivaAparente").getContext("2d");
+            new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: data.map((item) => `${item.Fecha} ${item.Hora}`), // Se concatena Fecha y Hora
+                    datasets: [
+                        {
+                            label: "Potencia Activa",
+                            data: data.map((item) => item["Potencia Activa"]),
+                            borderColor: "rgba(75, 192, 75, 1)",
+                            fill: false,
+                        },
+                        {
+                            label: "Potencia Aparente",
+                            data: data.map((item) => item["Potencia Aparente"]),
+                            borderColor: "rgba(75, 75, 192, 1)",
+                            fill: false,
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            });
+        }
+    }, [data]);
+
+    return (
+        data.length > 0
+    );
+};
 
 //
 const DataList = ({ data }) => (
@@ -178,7 +256,8 @@ const App = function (props) {
     }, []);
 
     return html`
-        
+        ${h(GraficaCorrienteFactorPotencia, { data })}
+        ${h(GraficaPotenciaActivaAparente, { data })}
         ${h(CurrentChart, { data })}
         ${h(VoltageChart, { data })}
         `; // Añade esta línea para mostrar u ocultar la gráfica según el estado showGraph
