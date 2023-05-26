@@ -13,7 +13,7 @@
 
 
 static const char *s_http_addr = "http://localhost:8000";  // HTTP port
-static const char *s_root_dir = "/TU_RUTA_RAIZ/Embedded_Web_Server_TT-II/my_server";
+static const char *s_root_dir = "~/my_server";
 #define MQTT_SERVER "mqtt://broker.hivemq.com:1883"
 #define MQTT_PUBLISH_TOPIC "mg/my_device"
 #define MQTT_SUBSCRIBE_TOPIC "mg/#"
@@ -123,7 +123,7 @@ int main(void) {
 	//sqlite3 *db;
 	int rc;
 
-	rc = sqlite3_open("/TU_RUTA_RAIZ/Embedded_Web_Server_TT-II/DataBase/sensor.db", &db);
+	rc = sqlite3_open("~/DataBase/sensor.db", &db);
 
 	if (rc) {
     		fprintf(stderr, "No se puede abrir la base de datos: %s\n", sqlite3_errmsg(db));
