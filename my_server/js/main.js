@@ -3,15 +3,6 @@ import { h, html, render, useEffect, useState } from './preact.min.js';
 
 
 const Configuration = function (props) {
-  const [url, setUrl] = useState(props.config.url || '');
-  const [pub, setPub] = useState(props.config.pub || '');
-  const [sub, setSub] = useState(props.config.sub || '');
-
-  useEffect(() => {
-    setUrl(props.config.url);
-    setPub(props.config.pub);
-    setSub(props.config.sub);
-  }, [props.config]);
 
   const update = (name, val) =>
     fetch('/api/config/set', {
@@ -27,52 +18,50 @@ const Configuration = function (props) {
         console.log(err);
         enable(false);
       });
-
-  const updateurl = ev => update('url', url);
-  const updatepub = ev => update('pub', pub);
-  const updatesub = ev => update('sub', sub);
-
-  /*return html`
-<h3 style="background: #4b6cb7; color: #fff; padding: 0.4em;">
-  Device Configuration</h3>
-<div style="margin: 0.5em 0; display: flex;">
-  <span class="addon nowrap">Embedded Server:</span>
-  <input type="text" style="flex: 1 100%;"
-        value=${url} onchange=${updateurl}
-        oninput=${ev => setUrl(ev.target.value)} />
-  <button class="btn" disabled=${!url} onclick=${updateurl}
-    style="margin-left: 1em; background: #8aa;">Update</button>
-</div>
-<div style="margin: 0.5em 0; display: flex; ">
-  <span class="addon nowrap">Subscribe topic:</span>
-  <input type="text" style="flex: 1 100%;"
-      value=${sub} onchange=${updatesub}
-      oninput=${ev => setSub(ev.target.value)} />
-  <button class="btn" disabled=${!sub} onclick=${updatesub}
-    style="margin-left: 1em; background: #8aa;">Update</button>
-</div>
-<div style="margin: 0.5em 0; display: flex;">
-  <span class="addon nowrap">Publish topic:</span>
-  <input type="text" style="flex: 1 100%;"
-        value=${pub} onchange=${updatepub}
-        oninput=${ev => setPub(ev.target.value)} />
-  <button class="btn" disabled=${!pub} onclick=${updatepub}
-    style="margin-left: 1em; background: #8aa;">Update</button>
-</div>`;*/
 };
-//
+// Gráfica Corriente
 const CurrentChart = ({ data }) => {
+    let chart = null;
+
+    const updateChart = () => {
+        fetch('/api/data/get')
+            .then(r => r.json())
+            .then(r => {
+                // Extraer los datos necesarios del resultado
+                const newData = r.map((item) => ({
+                    x: `${item.Fecha} ${item.Hora}`,
+                    y: item["Corriente RMS"]
+                }));
+
+                // Tomar solo los últimos 15 datos
+                const latestData = newData.slice(Math.max(newData.length - 15, 0));
+
+                // Extraer los datos actuales de la gráfica
+                const currentLabels = chart.data.labels;
+                const currentData = chart.data.datasets[0].data;
+
+                // Asegurarse de que los datos sean diferentes de los datos actuales de la gráfica
+                if (JSON.stringify(latestData.map(item => item.x)) !== JSON.stringify(currentLabels) ||
+                    JSON.stringify(latestData.map(item => item.y)) !== JSON.stringify(currentData)) {
+                    // Actualizar los datos
+                    chart.data.labels = latestData.map((item) => item.x);
+                    chart.data.datasets[0].data = latestData.map((item) => item.y);
+                    chart.update();
+                }
+            });
+    };
+
     useEffect(() => {
         if (data.length > 0) {
             const ctx = document.getElementById("currentChart").getContext("2d");
-            new Chart(ctx, {
+            chart = new Chart(ctx, {
                 type: "line",
                 data: {
-                    labels: data.map((item) => `${item.Fecha} ${item.Hora}`), // Se concatena Fecha y Hora
+                    labels: data.map((item) => item.x),
                     datasets: [
                         {
                             label: "Corriente",
-                            data: data.map((item) => item["Corriente RMS"]),
+                            data: data.map((item) => item.y),
                             borderColor: "rgba(75, 192, 192, 1)",
                             fill: false,
                         },
@@ -86,6 +75,12 @@ const CurrentChart = ({ data }) => {
                     },
                 },
             });
+
+            // Llamar a updateChart cada 500 ms
+            const intervalId = setInterval(updateChart, 500);
+
+            // Limpiar el intervalo cuando el componente se desmonte
+            return () => clearInterval(intervalId);
         }
     }, [data]);
 
@@ -93,19 +88,51 @@ const CurrentChart = ({ data }) => {
         data.length > 0
     );
 };
+// Fin gráfica Corriente
 
+//Gráfica voltaje
 const VoltageChart = ({ data }) => {
+    let chart = null;
+
+    const updateChart = () => {
+        fetch('/api/data/get')
+            .then(r => r.json())
+            .then(r => {
+                // Extraer los datos necesarios del resultado
+                const newData = r.map((item) => ({
+                    x: `${item.Fecha} ${item.Hora}`,
+                    y: item["Voltaje RMS"]
+                }));
+
+                // Tomar solo los últimos 15 datos
+                const latestData = newData.slice(Math.max(newData.length - 15, 0));
+
+                // Extraer los datos actuales de la gráfica
+                const currentLabels = chart.data.labels;
+                const currentData = chart.data.datasets[0].data;
+
+                // Asegurarse de que los datos sean diferentes de los datos actuales de la gráfica
+                if (JSON.stringify(latestData.map(item => item.x)) !== JSON.stringify(currentLabels) ||
+                    JSON.stringify(latestData.map(item => item.y)) !== JSON.stringify(currentData)) {
+                    // Actualizar los datos
+                    chart.data.labels = latestData.map((item) => item.x);
+                    chart.data.datasets[0].data = latestData.map((item) => item.y);
+                    chart.update();
+                }
+            });
+    };
+
     useEffect(() => {
         if (data.length > 0) {
             const ctx = document.getElementById("voltageChart").getContext("2d");
-            new Chart(ctx, {
+            chart = new Chart(ctx, {
                 type: "bar",
                 data: {
-                    labels: data.map((item) => `${item.Fecha} ${item.Hora}`), // Se concatena Fecha y Hora
+                    labels: data.map((item) => item.x),
                     datasets: [
                         {
                             label: "Voltaje",
-                            data: data.map((item) => item["Voltaje RMS"]),
+                            data: data.map((item) => item.y),
                             backgroundColor: "rgba(75, 192, 192, 0.2)",
                             borderColor: "rgba(75, 192, 192, 1)",
                             borderWidth: 1,
@@ -120,6 +147,12 @@ const VoltageChart = ({ data }) => {
                     },
                 },
             });
+
+            // Llamar a updateChart cada 500 ms
+            const intervalId = setInterval(updateChart, 500);
+
+            // Limpiar el intervalo cuando el componente se desmonte
+            return () => clearInterval(intervalId);
         }
     }, [data]);
 
@@ -127,7 +160,7 @@ const VoltageChart = ({ data }) => {
         data.length > 0
     );
 };
-//
+//Fin Gráfica Voltaje
 const GraficaCorrienteFactorPotencia = ({ data }) => {
     useEffect(() => {
         if (data.length > 0) {
@@ -232,7 +265,7 @@ const DataList = ({ data }) => (
 const App = function (props) {
     const [config, setConfig] = useState({});
     const [data, setData] = useState([]);
-    const [showGraph, setShowGraph] = useState(false); // Nuevo estado para controlar la visualización de la gráfica
+    //const [showGraph, setShowGraph] = useState(false); // Nuevo estado para controlar la visualización de la gráfica
 
     const getconfig = () =>
         fetch('/api/config/get')
@@ -267,7 +300,6 @@ const App = function (props) {
         */
 };
 
-//window.onload = () => render(h(App), document.body);
 window.onload = () => {
     render(h(App), document.body);
     (function ($) {
