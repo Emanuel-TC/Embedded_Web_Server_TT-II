@@ -34,15 +34,15 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
           <div class="navbar-nav ml-auto py-0">
             <a href="#home" class="nav-item nav-link active">Inicio</a>
-            <a href="#abstract" class="nav-item nav-link">Sobre el TT</a>
+            <a href="#graphs" class="nav-item nav-link">Corriente | Voltaje</a>
             <a href="#herramientas" class="nav-item nav-link">Herramientas</a>
           </div>
           <a href="index.html" class="navbar-brand bg-primary px-4 mx-3 d-none d-lg-block">
             <h1 class="display-4 text-white text-uppercase m-0">TT-II SMPMEI</h1>
           </a>
           <div class="navbar-nav mr-auto py-0">
+            <a href="#abstract" class="nav-item nav-link">Sobre el TT</a>
             <a href="#team" class="nav-item nav-link">Equipo</a>
-            <a href="#graphs" class="nav-item nav-link">Gráficas</a>
             <a href="#contact" class="nav-item nav-link">Contacto</a>
           </div>
         </div>
@@ -89,30 +89,35 @@
       </div>
       <!-- Carrusel Fin -->
 
-
-      <!-- Sobre el TT Inicio-->
-      <div class="container-fluid py-5" id="abstract"> <!--Sobre el TT -->
+      <!--Gráficas Inicio-->
+      <div class="container-fluid py-5" id="graphs"> <!--faqs -->
         <div class="container py-5">
-          <div class="row align-items-center">
-            <div class="col-lg-5">
-              <img class="img-fluid mb-4 mb-lg-0" src="img/acercaTT.jpg" alt="">
+          <div class="section-title position-relative text-center">
+            <h6 class="text-uppercase text-primary mb-3" style="letter-spacing: 3px;">Gráficas</h6>
+            <h1 class="display-4">Lo que deberías saber</h1>
+          </div>
+          <div class="row">
+            <div class="col-md-6 border-right border-primary">
+              <div class="text-center text-md-right mr-md-3 mb-4 mb-md-0">
+                <h3 class="mb-4">Corriente</h3>
+                <!-- Agrega tu canvas aquí -->
+                <canvas id="currentChart" width="600" height="400"></canvas>
+              </div>
             </div>
-            <div class="col-lg-7">
-              <h6 class="text-uppercase text-primary mb-3" style="letter-spacing: 3px;">Sobre el TT</h6>
-              <h1 class="display-4 mb-3"><span class="text-primary">Desarrollo de un prototipo </span>de sistema embebido</h1>
-              <p>Para el monitoreo de parámetros en microrredes eléctricas utilizando el concepto de IoT, con la finalidad de gestionar
-                de una manera más eficiente la energía fotovoltaica proporcionada por un panel solar.
-                Los parámetros a monitorear de la microrred son corriente y voltaje, mediante un sensor especializado,
-                el cual es configurado mediante un sistema en chip (SoC) y enviados a un servidor implementado en un sistema embebido.
-                El servidor permitie la consulta de los datos enviados de la microrred </p>
-              <a class="btn btn-primary font-weight-bold py-3 px-5 mt-2" type="button" data-toggle="modal" data-target="#abstractModalLong">Abstract</a>
+            <div class="col-md-6">
+              <div class="text-center text-md-left ml-md-3">
+                <h3 class="mb-4">Voltaje</h3>
+                <!-- Agrega tu canvas aquí -->
+                <canvas id="voltageChart" width="600" height="400"></canvas>
+              </div>
+            </div>
+            <div class="col-md-12 text-center pt-3">
+              <a class="btn btn-primary font-weight-bold py-3 px-5 mt-4 btn-scroll" href="#contact">Cómprame un café</a>
             </div>
           </div>
         </div>
       </div>
-      <!-- Sobre el TT Fin -->
-
-
+      <!-- Gráficas Fin-->
       <!-- Herramientas Inicio -->
       <div class="container-fluid py-5" id="herramientas">
         <div class="container py-5">
@@ -165,6 +170,27 @@
       </div>
       <!-- Herramientas Fin -->
 
+      <!-- Sobre el TT Inicio-->
+      <div class="container-fluid py-5" id="abstract"> <!--Sobre el TT -->
+        <div class="container py-5">
+          <div class="row align-items-center">
+            <div class="col-lg-5">
+              <img class="img-fluid mb-4 mb-lg-0" src="img/acercaTT.jpg" alt="">
+            </div>
+            <div class="col-lg-7">
+              <h6 class="text-uppercase text-primary mb-3" style="letter-spacing: 3px;">Sobre el TT</h6>
+              <h1 class="display-4 mb-3"><span class="text-primary">Desarrollo de un prototipo </span>de sistema embebido</h1>
+              <p>Para el monitoreo de parámetros en microrredes eléctricas utilizando el concepto de IoT, con la finalidad de gestionar
+                de una manera más eficiente la energía fotovoltaica proporcionada por un panel solar.
+                Los parámetros a monitorear de la microrred son corriente y voltaje, mediante un sensor especializado,
+                el cual es configurado mediante un sistema en chip (SoC) y enviados a un servidor implementado en un sistema embebido.
+                El servidor permitie la consulta de los datos enviados de la microrred </p>
+              <a class="btn btn-primary font-weight-bold py-3 px-5 mt-2" type="button" data-toggle="modal" data-target="#abstractModalLong">Abstract</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Sobre el TT Fin -->
 
       <!-- Team Start -->
       <div class="container-fluid py-5" id="team">
@@ -239,38 +265,6 @@
         </div>
       </div>
       <!-- Equipo Fin-->
-
-
-      <!--Gráficas Inicio-->
-      <div class="container-fluid py-5" id="graphs"> <!--faqs -->
-        <div class="container py-5">
-          <div class="section-title position-relative text-center">
-            <h6 class="text-uppercase text-primary mb-3" style="letter-spacing: 3px;">Gráficas</h6>
-            <h1 class="display-4">Lo que deberías saber</h1>
-          </div>
-          <div class="row">
-            <div class="col-md-6 border-right border-primary">
-              <div class="text-center text-md-right mr-md-3 mb-4 mb-md-0">
-                <h3 class="mb-4">Corriente</h3>
-                  <!-- Agrega tu canvas aquí -->
-                  <canvas id="currentChart" width="600" height="400"></canvas>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="text-center text-md-left ml-md-3">
-                <h3 class="mb-4">Voltaje</h3>
-                  <!-- Agrega tu canvas aquí -->
-                  <canvas id="voltageChart" width="600" height="400"></canvas>
-              </div>
-            </div>
-            <div class="col-md-12 text-center pt-3">
-              <a class="btn btn-primary font-weight-bold py-3 px-5 mt-4 btn-scroll" href="#contact">Cómprame un café</a>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Gráficas Fin-->
-
 
       <!-- Contacto Inicio -->
       <div class="container-fluid py-5" id="contact">
@@ -382,9 +376,36 @@
               </button>
             </div>
             <div class="modal-body">
-              <!-- Incluimos aquí los canvas para las gráficas -->
-              <canvas id="graficaCorrienteFactorPotencia" width="300" height="200"></canvas>
-              <canvas id="graficaPotenciaActivaAparente" width="300" height="200"></canvas>
+              <div class="container py-5">
+                <div class="row">
+                  <div class="col-md-12 border-right border-primary">
+                    <div class="text-center text-md-right mr-md-3 mb-4 mb-md-0">
+                      <h3 class="mb-4">Potencia Activa | Potencia Aparente | Potencia Reactiva</h3>
+                      <!-- Agrega tu canvas aquí -->
+                      <canvas id="graficaPotenciaActivaAparenteReactiva" width="300" height="200"></canvas>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="text-center text-md-left ml-md-3">
+                      <h3 class="mb-4">Línea de Frecuencia</h3>
+                      <!-- Agrega tu canvas aquí -->
+                      <canvas id="graficaLineaFrecuenia" width="300" height="200"></canvas>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="text-center text-md-right ml-md-3">
+                      <h3 class="mb-4">Factor de Potencia</h3>
+                      <!-- Agrega tu canvas aquí -->
+                      <canvas id="graficaFactorPotencia" width="300" height="200"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Incluimos aquí los canvas para las gráficas -->
+
             </div>
           </div>
         </div>
