@@ -2,6 +2,7 @@
 import { h, html, render, useEffect, useState } from './preact.min.js';
 
 
+
 const Configuration = function (props) {
 
   const update = (name, val) =>
@@ -46,6 +47,11 @@ const CurrentChart = ({ data }) => {
                     // Actualizar los datos
                     chart.data.labels = latestData.map((item) => item.x);
                     chart.data.datasets[0].data = latestData.map((item) => item.y);
+
+                    // Actualizar el label con el último dato
+                    const ultimoDato = latestData[latestData.length - 1];
+                    chart.data.datasets[0].label = `Corriente: ${ultimoDato.y} A`;
+
                     chart.update();
                 }
             });
@@ -54,16 +60,17 @@ const CurrentChart = ({ data }) => {
     useEffect(() => {
         if (data.length > 0) {
             const ctx = document.getElementById("currentChart").getContext("2d");
+            const ultimoDato = data[data.length - 1];
             chart = new Chart(ctx, {
                 type: "line",
                 data: {
                     labels: data.map((item) => item.x),
                     datasets: [
                         {
-                            label: "Corriente",
+                            label: `Corriente: ${ultimoDato.y}`,
                             data: data.map((item) => item.y),
                             borderColor: "rgba(75, 192, 192, 1)",
-                            fill: false,
+                            fill: true,
                         },
                     ],
                 },
@@ -117,6 +124,11 @@ const VoltageChart = ({ data }) => {
                     // Actualizar los datos
                     chart.data.labels = latestData.map((item) => item.x);
                     chart.data.datasets[0].data = latestData.map((item) => item.y);
+
+                    // Actualizar el label con el último dato
+                    const ultimoDato = latestData[latestData.length - 1];
+                    chart.data.datasets[0].label = `Voltaje: ${ultimoDato.y} V`;
+
                     chart.update();
                 }
             });
@@ -125,13 +137,14 @@ const VoltageChart = ({ data }) => {
     useEffect(() => {
         if (data.length > 0) {
             const ctx = document.getElementById("voltageChart").getContext("2d");
+            const ultimoDato = data[data.length - 1];
             chart = new Chart(ctx, {
                 type: "bar",
                 data: {
                     labels: data.map((item) => item.x),
                     datasets: [
                         {
-                            label: "Voltaje",
+                            label: `Voltaje: ${ultimoDato.y}`,
                             data: data.map((item) => item.y),
                             backgroundColor: "rgba(75, 192, 192, 0.2)",
                             borderColor: "rgba(75, 192, 192, 1)",
@@ -160,25 +173,160 @@ const VoltageChart = ({ data }) => {
         data.length > 0
     );
 };
+
 //Fin Gráfica Voltaje
-const GraficaCorrienteFactorPotencia = ({ data }) => {
+const GraficaLineaFrecuencia = ({ data }) => {
+    let chart = null;
+
+    const updateChart = () => {
+        fetch('/api/data/get')
+            .then(r => r.json())
+            .then(r => {
+                // Extraer los datos necesarios del resultado
+                const newData = r.map((item) => ({
+                    x: `${item.Fecha} ${item.Hora}`,
+                    y: item["Línea de Frecuencia"]
+                }));
+
+                // Tomar solo los últimos 15 datos
+                const latestData = newData.slice(Math.max(newData.length - 15, 0));
+
+                // Extraer los datos actuales de la gráfica
+                const currentLabels = chart.data.labels;
+                const currentData = chart.data.datasets[0].data;
+
+                // Asegurarse de que los datos sean diferentes de los datos actuales de la gráfica
+                if (JSON.stringify(latestData.map(item => item.x)) !== JSON.stringify(currentLabels) ||
+                    JSON.stringify(latestData.map(item => item.y)) !== JSON.stringify(currentData)) {
+                    // Actualizar los datos
+                    chart.data.labels = latestData.map((item) => item.x);
+                    chart.data.datasets[0].data = latestData.map((item) => item.y);
+
+                    // Actualizar el label con el último dato
+                    const ultimoDato = latestData[latestData.length - 1];
+                    chart.data.datasets[0].label = `Línea de Frecuencia: ${ultimoDato.y}`;
+
+                    chart.update();
+                }
+            });
+    };
+
     useEffect(() => {
         if (data.length > 0) {
-            const ctx = document.getElementById("graficaCorrienteFactorPotencia").getContext("2d");
-            new Chart(ctx, {
+            const ctx = document.getElementById("graficaLineaFrecuenia").getContext("2d");
+            const ultimoDato = data[data.length - 1];
+            chart = new Chart(ctx, {
                 type: "line",
                 data: {
-                    labels: data.map((item) => `${item.Fecha} ${item.Hora}`), // Se concatena Fecha y Hora
+                    labels: data.map((item) => item.x),
                     datasets: [
                         {
-                            label: "Corriente RMS",
-                            data: data.map((item) => item["Corriente RMS"]),
+                            label: `Línea de Frecuencia: ${ultimoDato.y}`,
+                            data: data.map((item) => item.y),
                             borderColor: "rgba(75, 192, 192, 1)",
                             fill: false,
                         },
+                    ],
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            });
+
+            // Llamar a updateChart cada 500 ms
+            const intervalId = setInterval(updateChart, 500);
+
+            // Limpiar el intervalo cuando el componente se desmonte
+            return () => clearInterval(intervalId);
+        }
+    }, [data]);
+
+    return (
+        data.length > 0
+    );
+};
+
+
+
+const GraficaPotenciaActivaAparenteReactiva = ({ data }) => {
+    let chart = null;
+
+    const updateChart = () => {
+        fetch('/api/data/get')
+            .then(r => r.json())
+            .then(r => {
+                // Extraer los datos necesarios del resultado
+                const newData = r.map((item) => ({
+                    x: `${item.Fecha} ${item.Hora}`,
+                    y1: item["Potencia Activa"],
+                    y2: item["Potencia Aparente"],
+                    y3: item["Potencia Reactiva"],
+                }));
+
+                // Tomar solo los últimos 15 datos
+                const latestData = newData.slice(Math.max(newData.length - 15, 0));
+
+                // Extraer los datos actuales de la gráfica
+                const currentLabels = chart.data.labels;
+                const currentDataActiva = chart.data.datasets[0].data;
+                const currentDataAparente = chart.data.datasets[1].data;
+                const currentDataReactiva = chart.data.datasets[2].data;
+
+                // Asegurarse de que los datos sean diferentes de los datos actuales de la gráfica
+                if (JSON.stringify(latestData.map(item => item.x)) !== JSON.stringify(currentLabels) ||
+                    JSON.stringify(latestData.map(item => item.y1)) !== JSON.stringify(currentDataActiva) ||
+                    JSON.stringify(latestData.map(item => item.y2)) !== JSON.stringify(currentDataAparente) ||
+                    JSON.stringify(latestData.map(item => item.y3)) !== JSON.stringify(currentDataReactiva)) {
+                    // Actualizar los datos
+                    chart.data.labels = latestData.map((item) => item.x);
+                    chart.data.datasets[0].data = latestData.map((item) => item.y1);
+                    chart.data.datasets[1].data = latestData.map((item) => item.y2);
+                    chart.data.datasets[2].data = latestData.map((item) => item.y3);
+
+                    // Calculate the latest values
+                    const ultimoPotenciaActiva = latestData[latestData.length - 1].y1;
+                    const ultimoPotenciaAparente = latestData[latestData.length - 1].y2;
+                    const ultimoPotenciaReactiva = latestData[latestData.length - 1].y3;
+
+                    // Update the labels
+                    chart.data.datasets[0].label = `Potencia Activa: ${ultimoPotenciaActiva}`;
+                    chart.data.datasets[1].label = `Potencia Aparente: ${ultimoPotenciaAparente}`;
+                    chart.data.datasets[2].label = `Potencia Reactiva: ${ultimoPotenciaReactiva}`;
+                    chart.update();
+                }
+            });
+    };
+
+    useEffect(() => {
+        if (data.length > 0) {
+            const ultimoPotenciaActiva = data[data.length - 1].y1;
+            const ultimoPotenciaAparente = data[data.length - 1].y2;
+            const ultimoPotenciaReactiva = data[data.length - 1].y3;
+            const ctx = document.getElementById("graficaPotenciaActivaAparenteReactiva").getContext("2d");
+            chart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: data.map((item) => item.x),
+                    datasets: [
                         {
-                            label: "Factor de Potencia",
-                            data: data.map((item) => item["Factor de Potencia"]),
+                            label: `Potencia Activa: ${ultimoPotenciaActiva}`,
+                            data: data.map((item) => item.y1),
+                            borderColor: "rgba(75, 192, 75, 1)",
+                            fill: false,
+                        },
+                        {
+                            label: `Potencia Aparente: ${ultimoPotenciaAparente}`,
+                            data: data.map((item) => item.y2),
+                            borderColor: "rgba(75, 75, 192, 1)",
+                            fill: false,
+                        },
+                        {
+                            label: `Potencia Reactiva: ${ultimoPotenciaReactiva}`,
+                            data: data.map((item) => item.y3),
                             borderColor: "rgba(192, 75, 75, 1)",
                             fill: false,
                         },
@@ -192,6 +340,12 @@ const GraficaCorrienteFactorPotencia = ({ data }) => {
                     },
                 },
             });
+
+            // Llamar a updateChart cada 500 ms
+            const intervalId = setInterval(updateChart, 500);
+
+            // Limpiar el intervalo cuando el componente se desmonte
+            return () => clearInterval(intervalId);
         }
     }, [data]);
 
@@ -199,38 +353,67 @@ const GraficaCorrienteFactorPotencia = ({ data }) => {
         data.length > 0
     );
 };
+//Factor de potencia
+const GraficaFactorPotencia = ({ data }) => {
+    let chart = null;
 
-const GraficaPotenciaActivaAparente = ({ data }) => {
+    const updateChart = () => {
+        fetch('/api/data/get')
+            .then(r => r.json())
+            .then(r => {
+                // Tomar el último dato
+                const ultimoDato = r[r.length - 1];
+                const ultimoFactorPotencia = ultimoDato["Factor de Potencia"];
+                const restante = 1 - ultimoFactorPotencia;
+
+                // Actualizar los datos y las etiquetas
+                chart.data.labels = [`Factor de Potencia: ${(ultimoFactorPotencia*100).toFixed(2)} %`, `Restante: ${(restante*100).toFixed(2)} %`];
+                chart.data.datasets[0].data = [ultimoFactorPotencia, restante];
+
+                // Actualizar el título
+                //chart.options.title.text = `Fecha: ${ultimoDato.Fecha}, Hora: ${ultimoDato.Hora}`;
+                chart.options.plugins.title.text = `Fecha: ${ultimoDato.Fecha}, Hora: ${ultimoDato.Hora}`;
+
+
+                // Actualizar la gráfica
+                chart.update();
+            });
+    };
+
     useEffect(() => {
         if (data.length > 0) {
-            const ctx = document.getElementById("graficaPotenciaActivaAparente").getContext("2d");
-            new Chart(ctx, {
-                type: "line",
+            const ultimoFactorPotencia = data[data.length - 1]["Factor de Potencia"];
+            const restante = 1 - ultimoFactorPotencia;
+
+            const ctx = document.getElementById("graficaFactorPotencia").getContext("2d");
+            chart = new Chart(ctx, {
+                type: "doughnut",
                 data: {
-                    labels: data.map((item) => `${item.Fecha} ${item.Hora}`), // Se concatena Fecha y Hora
+                    labels: [`Factor de Potencia: ${(ultimoFactorPotencia*100).toFixed(2)} %`, `Restante: ${(restante*100).toFixed(2)} %`],
                     datasets: [
                         {
-                            label: "Potencia Activa",
-                            data: data.map((item) => item["Potencia Activa"]),
-                            borderColor: "rgba(75, 192, 75, 1)",
-                            fill: false,
-                        },
-                        {
-                            label: "Potencia Aparente",
-                            data: data.map((item) => item["Potencia Aparente"]),
-                            borderColor: "rgba(75, 75, 192, 1)",
-                            fill: false,
+                            data: [ultimoFactorPotencia, restante],
+                            backgroundColor: ["rgba(192, 75, 75, 0.5)", "rgba(75, 192, 192, 0.5)"],
+                            hoverBackgroundColor: ["rgba(192, 75, 75, 0.7)", "rgba(75, 192, 192, 0.7)"],
+                            borderColor: ["rgba(192, 75, 75, 1)", "rgba(75, 192, 192, 1)"],
                         },
                     ],
                 },
                 options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                        },
-                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Fecha: ${data[data.length - 1].Fecha}, Hora: ${data[data.length - 1].Hora}`
+                        }
+                    }
                 },
             });
+
+            // Llamar a updateChart cada 500 ms
+            const intervalId = setInterval(updateChart, 500);
+
+            // Limpiar el intervalo cuando el componente se desmonte
+            return () => clearInterval(intervalId);
         }
     }, [data]);
 
@@ -238,7 +421,6 @@ const GraficaPotenciaActivaAparente = ({ data }) => {
         data.length > 0
     );
 };
-
 //
 const DataList = ({ data }) => (
     data.length > 0 && html`
@@ -289,8 +471,9 @@ const App = function (props) {
     }, []);
 
     return html`
-        ${h(GraficaCorrienteFactorPotencia, { data })}
-        ${h(GraficaPotenciaActivaAparente, { data })}
+        ${h(GraficaLineaFrecuencia, { data })}
+        ${h(GraficaPotenciaActivaAparenteReactiva, { data })}
+        ${h(GraficaFactorPotencia, { data })}
         ${h(CurrentChart, { data })}
         ${h(VoltageChart, { data })}
         `; // Añade esta línea para mostrar u ocultar la gráfica según el estado showGraph
