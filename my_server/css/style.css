@@ -1536,6 +1536,15 @@ pre code {
   color: #818491;
 }
 
+.table-container {
+  max-height: 400px; /* Ajusta este valor según tus necesidades */
+  overflow: auto;
+}
+.table-container table {
+  width: 100%;
+  display: block;
+}
+
 .table th,
 .table td {
   padding: 0.75rem;
