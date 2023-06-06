@@ -126,6 +126,7 @@
             <h1 class="font-secondary display-4">Lo que ofrecemos</h1>
           </div>
           <div class="row">
+
             <div class="col-lg-4 mb-3">
               <div class="product-item mb-2">
                 <div class="product-img">
@@ -139,6 +140,7 @@
                 </div>
               </div>
             </div>
+
             <div class="col-lg-4 mb-3">
               <div class="product-item mb-2">
                 <div class="product-img">
@@ -152,7 +154,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-lg-4 mb-3">
+            <!--div-- class="col-lg-4 mb-3">
               <div class="product-item mb-2">
                 <div class="product-img">
                   <img class="img-fluid" src="img/noti.jpg" alt="">
@@ -164,7 +166,7 @@
                   <h3 class="m-0">Notificaciones</h3>
                 </div>
               </div>
-            </div>
+            </div-->
           </div>
         </div>
       </div>
@@ -387,26 +389,35 @@
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-md-6">
+                  <div class="col-md-12">
                     <div class="text-center text-md-left ml-md-3">
                       <h3 class="mb-4">Línea de Frecuencia</h3>
                       <!-- Agrega tu canvas aquí -->
                       <canvas id="graficaLineaFrecuenia" width="300" height="200"></canvas>
                     </div>
                   </div>
+                  <!-- Factor de potencia -->
+                    <div class="col-md-12">
+                      <h2 class="text-center">Factor de Potencia</h2>
+                    </div>
                   <div class="col-md-6">
                     <div class="text-center text-md-right ml-md-3">
-                      <h3 class="mb-4">Factor de Potencia</h3>
-                      <!-- Agrega tu canvas aquí -->
                       <canvas id="graficaFactorPotencia" width="300" height="200"></canvas>
                     </div>
                   </div>
+                  <!-- Agrega tu canvas aquí -->
+                  <div class="col-md-6">
+                    <div class="text-center text-md-right ml-md-3">
+                      <canvas id="graficaFactorPotenciaUltimo" width="300" height="200"></canvas>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
             <!-- Incluimos aquí los canvas para las gráficas -->
 
-            </div>
+
           </div>
         </div>
       </div>
@@ -424,14 +435,41 @@
               </button>
             </div>
             <div class="modal-body">
-              <img class="img-fluid mb-4" src="img/carousel-1.jpg" alt="">
-              <p>Sit eos diam rebum amet stet sit lorem invidunt, kasd dolor ea dolores ut nonumy, sea est rebum dolore dolor.
-                Lorem tempor tempor gubergren dolor dolor dolor. Kasd amet labore voluptua justo diam, dolore accusam duo est stet
-                nonumy tempor dolores sadipscing duo. Stet at et nonumy erat et sed.</p>
+              <!-- Fecha de inicio y fin -->
+              <label>Fecha de inicio:</label>
+              <input type="date" id="start-date">
+              <label>Fecha de fin:</label>
+              <input type="date" id="end-date">
+
+              <!-- Botón para filtrar los datos -->
+              <!--button id="filter-button">Filtrar</button-->
+              <button type="button" onclick="searchDateAlternative()">Go</button>
+              <!-- Envuelve tu tabla en un div con la clase 'table-container' -->
+              <div class="table-container table-sm table-bordered table-primary table-striped">
+                <table>
+                  <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Voltaje RMS</th>
+                    <th>Línea de Frecuencia</th>
+                    <th>Factor de Potencia</th>
+                    <th>Corriente RMS</th>
+                    <th>Potencia Activa</th>
+                    <th>Potencia Reactiva</th>
+                    <th>Potencia Aparente</th>
+                  </tr>
+                  </thead>
+                </table>
+              </div>
+
+              <!-- ... -->
             </div>
           </div>
         </div>
       </div>
+
       <!-- Reportes Fin  -->
 
       <!-- Notificaciones Inicio -->
@@ -456,30 +494,6 @@
       </div>
       <!-- Notificaciones Fin  -->
 
-      <!-- Modal Inicio >
-      <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
-           aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLongTitle">Solar Energy System</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <img class="img-fluid mb-4" src="img/carousel-1.jpg" alt="">
-              <p>Sit eos diam rebum amet stet sit lorem invidunt, kasd dolor ea dolores ut nonumy, sea est rebum dolore dolor. Lorem tempor tempor gubergren dolor dolor dolor. Kasd amet labore voluptua justo diam, dolore accusam duo est stet nonumy tempor dolores sadipscing duo. Stet at et nonumy erat et sed.</p>
-              <p>Sit eos diam rebum amet stet sit lorem invidunt, kasd dolor ea dolores ut nonumy, sea est rebum dolore dolor. Lorem tempor tempor gubergren dolor dolor dolor. Kasd amet labore voluptua justo diam, dolore accusam duo est stet nonumy tempor dolores sadipscing duo. Stet at et nonumy erat et sed.</p>
-              <p>Sit eos diam rebum amet stet sit lorem invidunt, kasd dolor ea dolores ut nonumy, sea est rebum dolore dolor. Lorem tempor tempor gubergren dolor dolor dolor. Kasd amet labore voluptua justo diam, dolore accusam duo est stet nonumy tempor dolores sadipscing duo. Stet at et nonumy erat et sed.</p>
-              <p>Sit eos diam rebum amet stet sit lorem invidunt, kasd dolor ea dolores ut nonumy, sea est rebum dolore dolor. Lorem tempor tempor gubergren dolor dolor dolor. Kasd amet labore voluptua justo diam, dolore accusam duo est stet nonumy tempor dolores sadipscing duo. Stet at et nonumy erat et sed.</p>
-              <p>Sit eos diam rebum amet stet sit lorem invidunt, kasd dolor ea dolores ut nonumy, sea est rebum dolore dolor. Lorem tempor tempor gubergren dolor dolor dolor. Kasd amet labore voluptua justo diam, dolore accusam duo est stet nonumy tempor dolores sadipscing duo. Stet at et nonumy erat et sed.</p>
-              <p>Sit eos diam rebum amet stet sit lorem invidunt, kasd dolor ea dolores ut nonumy, sea est rebum dolore dolor. Lorem tempor tempor gubergren dolor dolor dolor. Kasd amet labore voluptua justo diam, dolore accusam duo est stet nonumy tempor dolores sadipscing duo. Stet at et nonumy erat et sed.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      < Modal Fin -->
 
 
       <!-- Scroll to Bottom -->
@@ -502,8 +516,6 @@
       <script src="mail/jqBootstrapValidation.min.js"></script>
       <script src="mail/contact.js"></script>
 
-      <!-- Template Javascript -->
-      <!--script src="js/main.js"></script-->
 
       <script type="module" src="js/main.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
