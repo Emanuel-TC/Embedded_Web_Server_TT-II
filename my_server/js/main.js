@@ -533,7 +533,6 @@ fetch("/api/data/get")
 
             // Agregar las columnas a la fila
             row.innerHTML = `
-        <td>${item["ID"]}</td>
         <td>${item["Fecha"]}</td>
         <td>${item["Hora"]}</td>
         <td>${item["Voltaje RMS"]}</td>
@@ -554,72 +553,103 @@ fetch("/api/data/get")
     })
     .catch(error => console.error('Error:', error));
 
-//
-function searchDate() {
-    var input_startDate, input_stopDate, table, tr, i;
 
-    // get the values and convert to date
-    input_startDate = new Date(document.getElementById("date-start").value);
-    input_stopDate = new Date(document.getElementById("date-stop").value);
+window.searchDateAlternative = function(isoStartDate, isoStopDate) {
+    // Convert the ISO date strings back to Date objects
+    const startDate = new Date(isoStartDate);
+    const stopDate = new Date(isoStopDate);
 
-    table = document.getElementById("myTable");
-    tr = table.getElementsByTagName("tr");
+    // Make a GET request to the server with the start and end dates
+    fetch(`/api/data/get?start=${isoStartDate}&end=${isoStopDate}`)
+        .then(response => response.json())
+        .then(data => {
+            // Process the data returned from the server
+            // This could involve updating the table with the new data
+            console.log("Data received from server:", data);
 
-    for (i = 0; i < tr.length; i++) {
-        // you need to get the text and convert to date
-        let td_date = new Date(tr[i].getElementsByTagName("td")[0].textContent);
+            const table = document.getElementById('myTable');
+            const tbody = table.tBodies[0];  // Asumiendo que tu tabla solo tiene un cuerpo (tbody)
 
-        // now you can compare dates correctly
-        if (td_date) {
-            if (td_date >= input_startDate && td_date <= input_stopDate) {
-                // show the row by setting the display property
-                tr[i].style.display = 'table-row;';
-            } else {
-                // hide the row by setting the display property
-                tr[i].style.display = 'none';
+            // Elimina todas las filas existentes
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
             }
-        }
 
-    }
+            // Inserta las nuevas filas
+            for (const item of data) {
+                const row = tbody.insertRow(-1);  // Inserta una nueva fila al final del cuerpo de la tabla
+                const cell1 = row.insertCell(0);
+                const cell2 = row.insertCell(1);
+                const cell3 = row.insertCell(2);
+                const cell4 = row.insertCell(3);
+                const cell5 = row.insertCell(4);
+                const cell6 = row.insertCell(5);
+                const cell7 = row.insertCell(6);
+                const cell8 = row.insertCell(7);
+                const cell9 = row.insertCell(8);
+                cell1.innerHTML = item['date'];
+                cell2.innerHTML = item['Hora'];
+                cell3.innerHTML = item['Voltaje RMS'];
+                cell4.innerHTML = item['Línea de Frecuencia'];
+                cell5.innerHTML = item['Factor de Potencia'];
+                cell6.innerHTML = item['Corriente RMS'];
+                cell7.innerHTML = item['Potencia Activa'];
+                cell8.innerHTML = item['Potencia Reactiva'];
+                cell9.innerHTML = item['Potencia Aparente'];
+            }
+        });
 }
 
-function searchDateAlternative() {
-    // get the values and convert to date
-    const input_startDate = new Date(document.getElementById("date-start").value);
-    const input_stopDate = new Date(document.getElementById("date-stop").value);
 
-    // only process table body rows, ignoring footer/headers
-    const tr = document.querySelectorAll("table tbody tr")
 
-    for (let i = 0; i < tr.length; i++) {
-        // ensure we have a relevant td
-        let td = tr[i].getElementsByTagName("td");
-        if (!td || !td[0]) continue;
 
-        // you need to get the text and convert to date
-        let td_date = new Date(td[0].textContent);
+document.addEventListener('DOMContentLoaded', (event) => {
+    document.getElementById('filter-button').addEventListener('click', function() {
+        const input_startDate = new Date(document.getElementById("start-date").value);
+        const input_stopDate = new Date(document.getElementById("end-date").value);
 
-        // now you can compare dates correctly
-        if (td_date) {
-            if (td_date >= input_startDate && td_date <= input_stopDate) {
-                // show the row by setting the display property
-                tr[i].style.display = 'table-row;';
-            } else {
-                // hide the row by setting the display property
-                tr[i].style.display = 'none';
-            }
-        }
+        const isoStartDate = input_startDate.toISOString().slice(0,10);
+        const isoStopDate = input_stopDate.toISOString().slice(0,10);
 
-    }
+        // Log the values in the console
+        console.log("ISO Start Date:", isoStartDate);
+        console.log("ISO Stop Date:", isoStopDate);
+
+        // Pasar estos valores a la función searchDateAlternative()
+        searchDateAlternative(isoStartDate, isoStopDate);
+    });
+});
+
+window.exportToPdf = function() {
+    const input_startDate = new Date(document.getElementById("start-date").value);
+    const input_stopDate = new Date(document.getElementById("end-date").value);
+
+    const isoStartDate = input_startDate.toISOString().slice(0,10);
+    const isoStopDate = input_stopDate.toISOString().slice(0,10);
+    const title = "Reporte histórico del " +  isoStartDate+ " al " + isoStopDate;
+
+    const doc = new jsPDF();
+    doc.setFontSize(22);
+    doc.text(title, 15, 15);
+
+    const elem = document.getElementById("myTable");
+
+    doc.autoTable({
+        html: elem,
+        startY: 30,  // ajustar este valor para hacer espacio para el título
+        styles: {overflow: 'linebreak'}
+    });
+
+    doc.save('sample.pdf');
 }
 
-// Obtén los elementos de la página
-let startDateInput = document.getElementById("start-date");
-let endDateInput = document.getElementById("end-date");
-let filterButton = document.getElementById("filter-button");
-let table = document.querySelector("table");
 
-// Define una función que se encargará de realizar la solicitud
+document.addEventListener('DOMContentLoaded', (event) => {
+    document.getElementById('export-button').addEventListener('click', function() {
+        exportToPdf();
+    });
+});
+
 
 
 //
@@ -627,56 +657,6 @@ let table = document.querySelector("table");
 const App = function (props) {
     const [config, setConfig] = useState({});
     const [data, setData] = useState([]);
-    /*const filterData = () => {
-        alert('Button was clicked');
-        // Obtén las fechas seleccionadas por el usuario
-        let startDate = startDateInput.value;
-        let endDate = endDateInput.value;
-
-        // Limpia la tabla antes de agregar las nuevas filas
-        table.innerHTML = `
-    <thead>
-    <tr>
-      <th>ID</th>
-      <th>Fecha</th>
-      <th>Hora</th>
-      <th>Voltaje RMS</th>
-      <th>Línea de Frecuencia</th>
-      <th>Factor de Potencia</th>
-      <th>Corriente RMS</th>
-      <th>Potencia Activa</th>
-      <th>Potencia Reactiva</th>
-      <th>Potencia Aparente</th>
-    </tr>
-    </thead>
-  `;
-
-        // Realiza la solicitud a la API
-        fetch(`/api/data/get?start_date=${startDate}&end_date=${endDate}`)
-            .then(response => response.json())
-            .then(data => {
-                // Crea y agrega las filas a la tabla
-                let tbody = document.createElement("tbody");
-                for (let item of data) {
-                    let row = document.createElement("tr");
-                    row.innerHTML = `
-          <td>${item["ID"]}</td>
-          <td>${item["Fecha"]}</td>
-          <td>${item["Hora"]}</td>
-          <td>${item["Voltaje RMS"]}</td>
-          <td>${item["Línea de Frecuencia"]}</td>
-          <td>${item["Factor de Potencia"]}</td>
-          <td>${item["Corriente RMS"]}</td>
-          <td>${item["Potencia Activa"]}</td>
-          <td>${item["Potencia Reactiva"]}</td>
-          <td>${item["Potencia Aparente"]}</td>
-        `;
-                    tbody.appendChild(row);
-                }
-                table.appendChild(tbody);
-            })
-            .catch(error => console.error('Error:', error));
-    }*/
 
     //const [showGraph, setShowGraph] = useState(false); // Nuevo estado para controlar la visualización de la gráfica
 
