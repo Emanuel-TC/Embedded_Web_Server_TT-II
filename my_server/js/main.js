@@ -175,6 +175,8 @@ const VoltageChart = ({ data }) => {
 };
 
 //Fin Gráfica Voltaje
+
+//Gráfica de linea de frecuencia
 const GraficaLineaFrecuencia = ({ data }) => {
     let chart = null;
 
@@ -601,8 +603,6 @@ window.searchDateAlternative = function(isoStartDate, isoStopDate) {
 }
 
 
-
-
 document.addEventListener('DOMContentLoaded', (event) => {
     document.getElementById('filter-button').addEventListener('click', function() {
         const input_startDate = new Date(document.getElementById("start-date").value);
@@ -612,41 +612,51 @@ document.addEventListener('DOMContentLoaded', (event) => {
         const isoStopDate = input_stopDate.toISOString().slice(0,10);
 
         // Log the values in the console
-        console.log("ISO Start Date:", isoStartDate);
-        console.log("ISO Stop Date:", isoStopDate);
+        console.log(isoStartDate, isoStopDate);
 
         // Pasar estos valores a la función searchDateAlternative()
         searchDateAlternative(isoStartDate, isoStopDate);
     });
 });
+function parseDate(dateString) {
+    const [day, month, year] = dateString.split("-");
+    return new Date(`${year}-${month}-${day}`);
+}
 
-window.exportToPdf = function() {
-    const input_startDate = new Date(document.getElementById("start-date").value);
-    const input_stopDate = new Date(document.getElementById("end-date").value);
+function generatePDF(isoStartDate, isoStopDate) {
+    console.log(isoStartDate);
+    console.log(isoStopDate);
+    const title = `Consulta histórica del ${isoStartDate} al ${isoStopDate}`;
 
-    const isoStartDate = input_startDate.toISOString().slice(0,10);
-    const isoStopDate = input_stopDate.toISOString().slice(0,10);
-    const title = "Reporte histórico del " +  isoStartDate+ " al " + isoStopDate;
+    var doc = new jsPDF('p', 'pt', 'letter');
 
-    const doc = new jsPDF();
-    doc.setFontSize(22);
-    doc.text(title, 15, 15);
-
-    const elem = document.getElementById("myTable");
+    doc.setFontSize(20);
+    doc.text(title, 40, 40);
 
     doc.autoTable({
-        html: elem,
-        startY: 30,  // ajustar este valor para hacer espacio para el título
-        styles: {overflow: 'linebreak'}
-    });
+        html: '#myTable', // asegúrate de que este id coincida con el de tu tabla
+        startY: 70,
+        theme: 'grid',
+        styles: {
+            minCellHeight: 40
+        },
+        pageBreak: 'auto', // añade automáticamente un salto de página si la tabla excede la longitud de una página
+    })
 
-    doc.save('sample.pdf');
+    doc.save('consulta_historica.pdf');
 }
+
+
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
     document.getElementById('export-button').addEventListener('click', function() {
-        exportToPdf();
+        const input_startDate = new Date(document.getElementById("start-date").value);
+        const input_stopDate = new Date(document.getElementById("end-date").value);
+
+        const isoStartDate = input_startDate.toISOString().slice(0,10);
+        const isoStopDate = input_stopDate.toISOString().slice(0,10);
+        generatePDF(isoStartDate, isoStopDate);
     });
 });
 
@@ -708,7 +718,7 @@ window.onload = () => {
 
 
         // Smooth scrolling on the navbar links
-        $(".navbar-nav a, .btn-scroll").on('click', function (event) {
+        /*$(".navbar-nav a, .btn-scroll").on('click', function (event) {
             if (this.hash !== "") {
                 event.preventDefault();
 
@@ -719,6 +729,23 @@ window.onload = () => {
                 if ($(this).parents('.navbar-nav').length) {
                     $('.navbar-nav .active').removeClass('active');
                     $(this).closest('a').addClass('active');
+                }
+            }
+        });*/
+        $(".navbar-nav a, .btn-scroll").on('click', function (event) {
+            if (this.hash !== "") {
+                event.preventDefault();
+
+                var target = $(this.hash);
+                if (target.length) {
+                    $('html, body').animate({
+                        scrollTop: target.offset().top - 45
+                    }, 1500, 'easeInOutExpo');
+
+                    if ($(this).parents('.navbar-nav').length) {
+                        $('.navbar-nav .active').removeClass('active');
+                        $(this).closest('a').addClass('active');
+                    }
                 }
             }
         });
