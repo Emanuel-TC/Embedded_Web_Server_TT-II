@@ -13,26 +13,13 @@
 
 
 static const char *s_http_addr = "http://localhost:8000";  // HTTP port
-static const char *s_root_dir = "/home/pi/Documents/servidorweb/Embedded_Web_Server_TT-II/my_server";
-#define MQTT_SERVER "mqtt://broker.hivemq.com:1883"
-#define MQTT_PUBLISH_TOPIC "mg/my_device"
-#define MQTT_SUBSCRIBE_TOPIC "mg/#"
+static const char *s_root_dir = "/home/emanuel/TT/my_server";
 
 sqlite3 *db;
 
 static struct config {
   char *url, *pub, *sub;
 } s_config;
-
-// Try to update a single configuration value
-static void update_config(struct mg_str json, const char *path, char **value) {
-  char *jval;
-  if ((jval = mg_json_get_str(json, path)) != NULL) {
-    free(*value);
-    *value = strdup(jval);
-  }
-}
-
 
 //COnsultas SQLite
 		//consulta general
@@ -153,7 +140,6 @@ static char *query_database_date(sqlite3 *db, const char *start_date, const char
         char buf[512];
         snprintf(buf, sizeof(buf), "{\"date\": \"%s\", \"Hora\": \"%s\", \"Voltaje RMS\": %f, \"Línea de Frecuencia\": %f, \"Factor de Potencia\": %f, \"Corriente RMS\": %f, \"Potencia Activa\": %f, \"Potencia Reactiva\": %f, \"Potencia Aparente\": %f},", date, time, voltageRMS, linef, powerf, currentRMS, activep, reactivep, apparentp);
 
-        /*snprintf(buf, sizeof(buf), "{\"ID\": %d, \"Fecha\": \"%s\", \"Hora\": \"%s\", \"Voltaje RMS\": %f, \"Línea de Frecuencia\": %f, \"Factor de Potencia\": %f, \"Corriente RMS\": %f, \"Potencia Activa\": %f, \"Potencia Reactiva\": %f, \"Potencia Aparente\": %f},", id, date, time, voltageRMS, linef, powerf, currentRMS, activep, reactivep, apparentp);*/
         json_result = realloc(json_result, strlen(json_result) + strlen(buf) + 1);
         strcat(json_result, buf);
   }
@@ -169,15 +155,11 @@ static char *query_database_date(sqlite3 *db, const char *start_date, const char
   return json_result;
 }
 
-//
+// fin consulta por fechas
 
 
 static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
-  if (ev == MG_EV_OPEN && c->is_listening) {
-    s_config.url = strdup(MQTT_SERVER);
-    s_config.pub = strdup(MQTT_PUBLISH_TOPIC);
-    s_config.sub = strdup(MQTT_SUBSCRIBE_TOPIC);
-  } else if (ev == MG_EV_HTTP_MSG) {
+    if (ev == MG_EV_HTTP_MSG) {
     struct mg_http_message *hm = (struct mg_http_message *) ev_data;
     if (mg_http_match_uri(hm, "/api/config/get")) {
       mg_http_reply(c, 200, "Content-Type: application/json\r\n",
@@ -185,12 +167,6 @@ static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
                     mg_print_esc, 0, s_config.url, mg_print_esc, 0, "pub",
                     mg_print_esc, 0, s_config.pub, mg_print_esc, 0, "sub",
                     mg_print_esc, 0, s_config.sub);
-    } else if (mg_http_match_uri(hm, "/api/config/set")) {
-      struct mg_str json = hm->body;
-      update_config(json, "$.url", &s_config.url);
-      update_config(json, "$.pub", &s_config.pub);
-      update_config(json, "$.sub", &s_config.sub);
-      mg_http_reply(c, 200, "", "ok\n");
     }
     //
     else if (mg_http_match_uri(hm, "/api/data/get")) {
@@ -201,7 +177,6 @@ static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
     char *json_result = NULL;
     if (strlen(start_date) > 0 && strlen(end_date) > 0) { 
         json_result = query_database_date(db, start_date, end_date); // Llama a la función para consultar la base de datos
-        // Debugging print statements
     	fprintf(stderr, "start_date: %s\n", start_date);
     	fprintf(stderr, "end_date: %s\n", end_date);
     } else {
@@ -215,27 +190,6 @@ static void fn(struct mg_connection *c, int ev, void *ev_data, void *fn_data) {
         mg_http_reply(c, 500, "", "Error al consultar la base de datos\n");
     }
 }
-    //
-     
-    /*else if (mg_http_match_uri(hm, "/api/data/get")) {
-    char start_date[256] = {0}, end_date[256] = {0};
-    mg_http_get_var(&hm->query, "start", start_date, sizeof(start_date));
-    mg_http_get_var(&hm->query, "end", end_date, sizeof(end_date));
-
-    char *json_result = NULL;
-    if (strlen(start_date) > 0 && strlen(end_date) > 0) { 
-        json_result = query_database_date(db, start_date, end_date); // Llama a la función para consultar la base de datos
-    } else {
-        json_result = query_database_20_ultimos(db); // Llama a la función para consultar la base de datos
-    }
-
-    if (json_result != NULL) {
-        mg_http_reply(c, 200, "Content-Type: application/json\r\n", "%s", json_result);
-        free(json_result);
-    } else {
-        mg_http_reply(c, 500, "", "Error al consultar la base de datos\n");
-    }
-   }*/
 
     else {
       struct mg_http_serve_opts opts = {.root_dir = s_root_dir};
